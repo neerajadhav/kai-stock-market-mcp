@@ -1,167 +1,189 @@
-# MCP Starter for Puch AI
+# Stock Market MCP Server
 
-This is a starter template for creating your own Model Context Protocol (MCP) server that works with Puch AI. It comes with ready-to-use tools for job searching and image processing.
+A comprehensive Model Context Protocol (MCP) server for Indian stock market data powered by yfinance. Optimized for NSE/BSE markets with full global stock support.
 
-## What is MCP?
+## Features
 
-MCP (Model Context Protocol) allows AI assistants like Puch to connect to external tools and data sources safely. Think of it like giving your AI extra superpowers without compromising security.
+### Stock Data Tools
+- **get_stock_quote**: Real-time stock prices, changes, and volume data
+- **get_stock_history**: Historical price data with technical analysis support
+- **get_stock_info**: Comprehensive company fundamentals and financial metrics
+- **get_multiple_stock_quotes**: Batch processing for multiple stock symbols
 
-## What's Included in This Starter?
+### Market Analysis
+- **get_market_indices**: Major Indian indices (NIFTY 50, SENSEX, BANK NIFTY) and global markets
+- **get_market_movers**: Top gainers/losers from NIFTY 50 constituent stocks
+- **compare_stocks**: Side-by-side financial comparison with key metrics
 
-### 🎯 Job Finder Tool
-- **Analyze job descriptions** - Paste any job description and get smart insights
-- **Fetch job postings from URLs** - Give a job posting link and get the full details
-- **Search for jobs** - Use natural language to find relevant job opportunities
+### Advanced Chart Generation
+- **create_stock_chart**: Price charts with moving averages and volume analysis
+- **create_comparison_chart**: Multi-stock performance comparison charts
+- **create_candlestick_chart**: Detailed OHLC candlestick charts for technical analysis
+- **create_volume_analysis_chart**: Advanced volume analysis with VWAP and VPT indicators
 
-### 🖼️ Image Processing Tool
-- **Convert images to black & white** - Upload any image and get a monochrome version
+## Project Structure
 
-### 🔐 Built-in Authentication
-- Bearer token authentication (required by Puch AI)
-- Validation tool that returns your phone number
-
-## Quick Setup Guide
-
-### Step 1: Install Dependencies
-
-First, make sure you have Python 3.11 or higher installed. Then:
-
-```bash
-# Create virtual environment
-uv venv
-
-# Install all required packages
-uv sync
-
-# Activate the environment
-source .venv/bin/activate
+```
+stock-market-mcp/
+├── stock_market_server.py    # Main server entry point
+├── auth.py                   # Authentication provider
+├── models.py                 # Data models and schemas
+├── services/                 # Business logic layer
+│   ├── stock_service.py      # Stock data operations
+│   ├── market_data_service.py # Market data operations
+│   └── chart_service.py      # Chart generation
+└── tools/                    # MCP tool definitions
+    ├── stock_tools.py        # Stock-related tools
+    ├── market_analysis_tools.py # Market analysis tools
+    └── chart_tools.py        # Chart generation tools
 ```
 
-### Step 2: Set Up Environment Variables
+## Installation and Setup
 
-Create a `.env` file in the project root:
+### Prerequisites
+- Python 3.11 or higher
+- Environment variables configuration
 
+### Quick Start
+1. Clone the repository and navigate to the project directory
+
+2. Create environment configuration:
 ```bash
-# Copy the example file
 cp .env.example .env
 ```
 
-Then edit `.env` and add your details:
-
+3. Configure your `.env` file:
 ```env
-AUTH_TOKEN=your_secret_token_here
-MY_NUMBER=919876543210
+AUTH_TOKEN=your_secure_auth_token_here
+MY_NUMBER=your_validation_number_here
 ```
 
-**Important Notes:**
-- `AUTH_TOKEN`: This is your secret token for authentication. Keep it safe!
-- `MY_NUMBER`: Your WhatsApp number in format `{country_code}{number}` (e.g., `919876543210` for +91-9876543210)
-
-### Step 3: Run the Server
-
+4. Install dependencies:
 ```bash
-cd mcp-bearer-token
-python mcp_starter.py
+pip install -r requirements.txt
+```
+Or install manually:
+```bash
+pip install fastmcp python-dotenv pydantic yfinance matplotlib pandas
 ```
 
-You'll see: `🚀 Starting MCP server on http://0.0.0.0:8086`
-
-### Step 4: Make It Public (Required by Puch)
-
-Since Puch needs to access your server over HTTPS, you need to expose your local server:
-
-#### Option A: Using ngrok (Recommended)
-
-1. **Install ngrok:**
-   Download from https://ngrok.com/download
-
-2. **Get your authtoken:**
-   - Go to https://dashboard.ngrok.com/get-started/your-authtoken
-   - Copy your authtoken
-   - Run: `ngrok config add-authtoken YOUR_AUTHTOKEN`
-
-3. **Start the tunnel:**
-   ```bash
-   ngrok http 8086
-   ```
-
-#### Option B: Deploy to Cloud
-
-You can also deploy this to services like:
-- Railway
-- Render
-- Heroku
-- DigitalOcean App Platform
-
-## How to Connect with Puch AI
-
-1. **[Open Puch AI](https://wa.me/+919998881729)** in your browser
-2. **Start a new conversation**
-3. **Use the connect command:**
-   ```
-   /mcp connect https://your-domain.ngrok.app/mcp your_secret_token_here
-   ```
-
-### Debug Mode
-
-To get more detailed error messages:
-
-```
-/mcp diagnostics-level debug
+5. Start the server:
+```bash
+python stock_market_server.py
 ```
 
-## Customizing the Starter
+The server will be available at `http://0.0.0.0:8087`
 
-### Adding New Tools
+## Usage Examples
 
-1. **Create a new tool function:**
-   ```python
-   @mcp.tool(description="Your tool description")
-   async def your_tool_name(
-       parameter: Annotated[str, Field(description="Parameter description")]
-   ) -> str:
-       # Your tool logic here
-       return "Tool result"
-   ```
+### Stock Data Queries
+- Get real-time quote: `get_stock_quote("RELIANCE.NS")`
+- Historical data: `get_stock_history("TCS.NS", "1y")`
+- Company information: `get_stock_info("INFY.NS")`
+- Multiple quotes: `get_multiple_stock_quotes("RELIANCE.NS,TCS.NS,INFY.NS")`
 
-2. **Add required imports** if needed
+### Market Analysis
+- Index tracking: `get_market_indices()`
+- Market movers: `get_market_movers("gainers")`
+- Stock comparison: `compare_stocks("RELIANCE.NS,TCS.NS")`
 
+### Chart Generation
+- Price chart: `create_stock_chart("RELIANCE.NS", "6mo")`
+- Comparison chart: `create_comparison_chart("RELIANCE.NS,TCS.NS", "1y")`
+- Candlestick chart: `create_candlestick_chart("RELIANCE.NS", "3mo")`
 
-## 📚 **Additional Documentation Resources**
+## Technical Implementation
 
-### **Official Puch AI MCP Documentation**
-- **Main Documentation**: https://puch.ai/mcp
-- **Protocol Compatibility**: Core MCP specification with Bearer & OAuth support
-- **Command Reference**: Complete MCP command documentation
-- **Server Requirements**: Tool registration, validation, HTTPS requirements
+### Architecture
+- **Service-Oriented Design**: Modular architecture with dedicated service layers
+- **yfinance Integration**: Real-time data from Yahoo Finance API
+- **FastMCP Framework**: High-performance MCP server implementation
+- **Pydantic Models**: Type-safe data validation and serialization
+- **Bearer Authentication**: Secure token-based authentication system
 
-### **Technical Specifications**
-- **JSON-RPC 2.0 Specification**: https://www.jsonrpc.org/specification (for error handling)
-- **MCP Protocol**: Core protocol messages, tool definitions, authentication
+### Market Coverage
+- **Indian Markets**: Full support for NSE (.NS) and BSE (.BO) listed securities
+- **Global Markets**: Support for major international exchanges
+- **Market Indices**: Real-time tracking of major Indian and global indices
+- **NIFTY 50 Focus**: Specialized tools for India's benchmark index constituents
 
-### **Supported vs Unsupported Features**
+### Data Services
+- **Real-time Quotes**: Live pricing, volume, and market cap data
+- **Historical Analysis**: Comprehensive historical data with multiple timeframes
+- **Technical Indicators**: Moving averages, VWAP, volume analysis, and volatility metrics
+- **Financial Metrics**: P/E ratios, P/B ratios, EPS, dividend yields, and beta calculations
 
-**✓ Supported:**
-- Core protocol messages
-- Tool definitions and calls
-- Authentication (Bearer & OAuth)
-- Error handling
+### Visualization
+- **Professional Charts**: High-quality matplotlib charts with financial styling
+- **Multiple Chart Types**: Line charts, candlestick charts, and volume analysis
+- **Comparative Analysis**: Multi-stock performance visualization
+- **Technical Analysis**: Advanced charting with technical indicators
 
-**✗ Not Supported:**
-- Videos extension
-- Resources extension
-- Prompts extension
+## API Reference
 
-## Getting Help
+### Stock Data Tools
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `get_stock_quote` | Real-time stock quote | `symbol` (string) |
+| `get_stock_history` | Historical price data | `symbol` (string), `period` (string) |
+| `get_stock_info` | Company fundamentals | `symbol` (string) |
+| `get_multiple_stock_quotes` | Batch stock quotes | `symbols` (comma-separated string) |
 
-- **Join Puch AI Discord:** https://discord.gg/VMCnMvYx
-- **Check Puch AI MCP docs:** https://puch.ai/mcp
-- **Puch WhatsApp Number:** +91 99988 81729
+### Market Analysis Tools
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `get_market_indices` | Major market indices | None |
+| `get_market_movers` | Top gainers/losers | `type` (gainers/losers) |
+| `compare_stocks` | Multi-stock comparison | `symbols` (comma-separated string) |
 
----
+### Chart Generation Tools
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `create_stock_chart` | Basic price chart | `symbol` (string), `period` (string) |
+| `create_comparison_chart` | Multi-stock chart | `symbols` (comma-separated), `period` (string) |
+| `create_candlestick_chart` | OHLC candlestick chart | `symbol` (string), `period` (string) |
+| `create_volume_analysis_chart` | Volume analysis chart | `symbol` (string), `period` (string) |
 
-**Happy coding! 🚀**
+### Supported Timeframes
+- `1d`, `5d`, `1mo`, `3mo`, `6mo`, `1y`, `2y`, `5y`, `10y`, `ytd`, `max`
 
-Use the hashtag `#BuildWithPuch` in your posts about your MCP!
+### Symbol Formats
+- **Indian Stocks**: Add `.NS` for NSE or `.BO` for BSE (e.g., `RELIANCE.NS`, `TCS.BO`)
+- **Global Stocks**: Use standard symbols (e.g., `AAPL`, `GOOGL`, `MSFT`)
+- **Indices**: Use Yahoo Finance index symbols (e.g., `^NSEI`, `^BSESN`, `^GSPC`)
 
-This starter makes it super easy to create your own MCP server for Puch AI. Just follow the setup steps and you'll be ready to extend Puch with your custom tools!
+## Development Status
+
+### Current Implementation
+- **Complete yfinance Integration**: All stock data tools are fully implemented
+- **Advanced Chart Generation**: Professional matplotlib charts with technical indicators
+- **Comprehensive Market Data**: Real-time indices, market movers, and comparative analysis
+- **Production Ready**: Error handling, data validation, and performance optimization
+
+### Recent Updates
+- Full implementation of all MCP tools with yfinance backend
+- Advanced charting capabilities with technical analysis
+- Comprehensive Indian market coverage with NIFTY 50 focus
+- Professional chart styling and data visualization
+- Robust error handling and data validation
+
+## Contributing
+
+This project uses modern Python development practices:
+
+### Development Setup
+```bash
+pip install -e ".[dev]"
+```
+
+### Code Quality Tools
+- **Black**: Code formatting
+- **isort**: Import organization
+- **mypy**: Type checking
+- **pytest**: Testing framework
+
+### Code Style
+- Line length: 120 characters
+- Type hints required
+- Pydantic models for data validation
+- Async/await for non-blocking operations
