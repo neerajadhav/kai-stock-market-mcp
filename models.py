@@ -19,11 +19,3 @@ class MarketIndex(BaseModel):
     value: float
     change: float
     change_percent: float
-
-class StockAnalysis(BaseModel):
-    symbol: str
-    recommendation: str
-    target_price: float | None = None
-    analyst_rating: str | None = None
-    pe_ratio: float | None = None
-    eps: float | None = None

@@ -1,15 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "mcp-starter"
+name = "stock-market-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Stock Market MCP Server - A comprehensive Model Context Protocol server for stock market data and portfolio management"
+authors = [
+    {name = "Neeraj Adhav", email = "2024kpad1001@iiitkota.ac.in"},
+    {name = "Manu Shukla", email = "2024kpad1002@iiitkota.ac.in"},
+    {name = "Jansty Lewis", email = "2024kpad1003@iiitkota.ac.in"}
+]
+license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "beautifulsoup4>=4.13.4",
-    "dotenv>=0.9.9",
-    "fastmcp>=2.11.2",
-    "markdownify>=1.1.0",
-    "pillow>=11.3.0",
-    "python-dotenv>=1.1.1",
-    "readabilipy>=0.3.0",
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
+
+dependencies = [
+    "fastmcp>=2.11.2",
+    "python-dotenv>=1.1.1",
+    "pydantic>=2.0.0",
+    "yfinance>=0.2.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/neerajadhav/kai-stock-market-mcp"
+Repository = "https://github.com/neerajadhav/kai-stock-market-mcp"
+Issues = "https://github.com/neerajadhav/kai-stock-market-mcp/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+
+[tool.black]
+line-length = 120
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

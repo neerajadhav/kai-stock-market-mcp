@@ -46,7 +46,7 @@ register_chart_tools(mcp)
 # --- Run MCP Server ---
 async def main():
     print("📈 Starting Stock Market MCP server on http://0.0.0.0:8087")
-    await mcp.run_async("streamable-http", host="0.0.0.0", port=8087)
+    await mcp.run_async("streamable-http", host="0.0.0.0", port=8087, path="/")
 
 if __name__ == "__main__":
     asyncio.run(main())
