@@ -62,10 +62,6 @@ MY_NUMBER=your_validation_number_here
 ```bash
 pip install -r requirements.txt
 ```
-Or install manually:
-```bash
-pip install fastmcp python-dotenv pydantic yfinance matplotlib pandas
-```
 
 5. Start the server:
 ```bash

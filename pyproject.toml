@@ -7,7 +7,9 @@ name = "stock-market-mcp"
 version = "0.1.0"
 description = "Stock Market MCP Server - A comprehensive Model Context Protocol server for stock market data and portfolio management"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Neeraj Adhav", email = "2024kpad1001@iiitkota.ac.in"},
+    {name = "Manu Shukla", email = "2024kpad1002@iiitkota.ac.in"},
+    {name = "Jansty Lewis", email = "2024kpad1003@iiitkota.ac.in"}
 ]
 license = { text = "Apache-2.0" }
 readme = "README.md"
@@ -29,7 +31,6 @@ dependencies = [
     "matplotlib>=3.7.0",
     "pandas>=2.0.0",
 ]
-
 
 [project.urls]
 Homepage = "https://github.com/yourusername/stock-market-mcp"
