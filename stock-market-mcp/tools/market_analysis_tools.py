@@ -1,7 +1,7 @@
 from typing import Annotated
 from pydantic import Field
-from ..models import RichToolDescription
-from ..services.market_data_service import MarketDataService
+from models import RichToolDescription
+from services.market_data_service import MarketDataService
 
 def register_market_analysis_tools(mcp):
     """Register all yfinance-powered market analysis tools"""

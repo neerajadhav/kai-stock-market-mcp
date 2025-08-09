@@ -1,6 +1,6 @@
 from typing import List
 import yfinance as yf
-from ..models import MarketIndex
+from models import MarketIndex
 
 class MarketDataService:
     """Service for yfinance-powered market data operations with Indian market focus"""

@@ -1,6 +1,6 @@
 from typing import List
 import yfinance as yf
-from ..models import StockQuote, StockAnalysis
+from models import StockQuote, StockAnalysis
 
 class StockService:
     """Service for yfinance-powered stock operations"""

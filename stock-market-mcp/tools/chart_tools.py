@@ -1,8 +1,8 @@
 from typing import Annotated
 from pydantic import Field
 from mcp.types import ImageContent
-from ..models import RichToolDescription
-from ..services.chart_service import ChartService
+from models import RichToolDescription
+from services.chart_service import ChartService
 
 def register_chart_tools(mcp):
     """Register all matplotlib chart generation tools"""

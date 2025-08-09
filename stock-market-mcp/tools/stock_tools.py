@@ -1,7 +1,7 @@
 from typing import Annotated, List
 from pydantic import Field
-from ..models import RichToolDescription
-from ..services.stock_service import StockService
+from models import RichToolDescription
+from services.stock_service import StockService
 
 def register_stock_tools(mcp):
     """Register all yfinance-powered stock tools"""
