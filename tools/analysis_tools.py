@@ -2,29 +2,44 @@ from typing import Annotated
 from pydantic import Field
 from models import RichToolDescription
 from services.stock_service import StockService
+from services.symbol_resolver import SymbolResolver
+
+# Create a global symbol resolver instance
+symbol_resolver = SymbolResolver()
 
 def register_analysis_tools(mcp):
     """Register all yfinance-powered analysis tools"""
     
     GET_RECOMMENDATIONS_DESCRIPTION = RichToolDescription(
-        description="Get analyst recommendations for a stock using yfinance recommendations API",
-        use_when="When user wants to see analyst buy/sell/hold recommendations for Indian or global stocks",
-        side_effects="Fetches analyst recommendation data from Yahoo Finance via yfinance API"
+        description="Get analyst recommendations for a stock using yfinance recommendations API. Supports both exact symbols AND company names with intelligent auto-resolution",
+        use_when="When user wants to see analyst buy/sell/hold recommendations for Indian or global stocks using either exact symbols OR company names",
+        side_effects="Fetches analyst recommendation data from Yahoo Finance via yfinance API. Automatically resolves company names to correct symbols"
     )
 
     @mcp.tool(description=GET_RECOMMENDATIONS_DESCRIPTION.model_dump_json())
     async def get_analyst_recommendations(
-        symbol: Annotated[str, Field(description="Stock symbol (e.g., RELIANCE.NS, TCS.BO for Indian stocks)")]
+        symbol: Annotated[str, Field(description="Stock symbol OR company name (e.g., 'RELIANCE.NS', 'Reliance', 'TCS' - will auto-resolve)")]
     ) -> str:
-        """Get analyst recommendations for a stock using yfinance"""
+        """Get analyst recommendations for a stock using yfinance with smart symbol resolution"""
         try:
+            # Smart symbol resolution
+            resolved_symbol, resolution_message = await symbol_resolver.smart_resolve(symbol, context="indian")
+            
+            if not resolved_symbol:
+                return f"🔍 **Symbol Resolution Failed for '{symbol}'**\n\n{resolution_message}"
+            
+            # If symbol was resolved differently, show the resolution
+            resolution_info = ""
+            if resolved_symbol.upper() != symbol.upper():
+                resolution_info = f"🔄 *Resolved '{symbol}' → '{resolved_symbol}'*\n\n"
+            
             stock_service = StockService()
-            recommendations = await stock_service.get_recommendations(symbol)
+            recommendations = await stock_service.get_recommendations(resolved_symbol)
             
             if not recommendations:
-                return f"📊 No analyst recommendations found for {symbol.upper()}"
+                return f"{resolution_info}📊 No analyst recommendations found for {resolved_symbol.upper()}"
             
-            result = f"📊 **Analyst Recommendations for {symbol.upper()}**\n\n"
+            result = f"{resolution_info}📊 **Analyst Recommendations for {resolved_symbol.upper()}**\n\n"
             
             # Show recent recommendations (last 10)
             recent_recommendations = recommendations[-10:] if len(recommendations) > 10 else recommendations

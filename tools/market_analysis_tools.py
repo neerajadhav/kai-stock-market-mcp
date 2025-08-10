@@ -2,6 +2,10 @@ from typing import Annotated
 from pydantic import Field
 from models import RichToolDescription
 from services.market_data_service import MarketDataService
+from services.symbol_resolver import SymbolResolver
+
+# Create a global symbol resolver instance
+symbol_resolver = SymbolResolver()
 
 def register_market_analysis_tools(mcp):
     """Register all yfinance-powered market analysis tools"""
@@ -99,26 +103,37 @@ def register_market_analysis_tools(mcp):
             return f"❌ Error fetching market {type}: {str(e)}"
 
     COMPARE_STOCKS_DESCRIPTION = RichToolDescription(
-        description="Compare multiple Indian/global stocks side by side with key metrics using yfinance. Optimized for NSE/BSE comparisons",
-        use_when="When user wants to compare different Indian or global stocks for investment decisions",
-        side_effects="Fetches and compares stock data via yfinance. Best results with Indian stocks using .NS/.BO suffix"
+        description="Compare multiple Indian/global stocks side by side with key metrics using yfinance. Supports both exact symbols AND company names with intelligent auto-resolution. Optimized for NSE/BSE comparisons",
+        use_when="When user wants to compare different Indian or global stocks for investment decisions using either exact symbols OR company names",
+        side_effects="Fetches and compares stock data via yfinance. Automatically resolves company names to correct symbols. Best results with Indian stocks using .NS/.BO suffix"
     )
 
     @mcp.tool(description=COMPARE_STOCKS_DESCRIPTION.model_dump_json())
     async def compare_stocks(
-        symbols: Annotated[str, Field(description="Comma-separated stock symbols to compare (e.g., 'RELIANCE.NS,TCS.BO,INFY.NS')")]
+        symbols: Annotated[str, Field(description="Comma-separated stock symbols OR company names to compare (e.g., 'RELIANCE.NS,TCS.BO,INFY.NS' or 'Reliance,TCS,Infosys' - will auto-resolve)")]
     ) -> str:
-        """Compare multiple Indian/global stocks with key metrics using yfinance"""
+        """Compare multiple Indian/global stocks with key metrics using yfinance with smart symbol resolution"""
         try:
-            symbol_list = [s.strip().upper() for s in symbols.split(',')]
+            # Smart symbol resolution for multiple symbols
+            resolved_symbols, resolution_message = await symbol_resolver.resolve_multiple_symbols(symbols, prefer_indian=True)
+            
+            if not resolved_symbols:
+                return f"🔍 **Symbol Resolution Failed for '{symbols}'**\n\n{resolution_message}"
+            
+            # Add resolution info if symbols were resolved
+            resolution_info = ""
+            original_symbols = [s.strip() for s in symbols.split(',')]
+            if len(resolved_symbols) != len(original_symbols) or any(r.upper() != o.upper() for r, o in zip(resolved_symbols, original_symbols)):
+                resolution_info = f"🔄 *Resolved symbols: {', '.join(original_symbols)} → {', '.join(resolved_symbols)}*\n\n"
+            
             market_service = MarketDataService()
-            comparison = await market_service.compare_stocks(symbol_list)
+            comparison = await market_service.compare_stocks(resolved_symbols)
             
             stocks = comparison.get('stocks', [])
             if not stocks:
-                return f"❌ No data available for comparison of: {', '.join(symbol_list)}"
+                return f"❌ No data available for comparison of: {', '.join(resolved_symbols)}"
             
-            result = f"⚖️ **Stock Comparison ({len(stocks)} stocks)**\n"
+            result = f"{resolution_info}⚖️ **Stock Comparison ({len(stocks)} stocks)**\n"
             if comparison.get('comparison_date'):
                 result += f"*Data as of: {comparison['comparison_date']}*\n\n"
             
