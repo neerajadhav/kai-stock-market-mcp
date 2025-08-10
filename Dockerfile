@@ -22,6 +22,9 @@ RUN uv pip install --system --no-cache-dir -e .
 # Copy application code
 COPY . .
 
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash app \
     && chown -R app:app /app
@@ -30,5 +33,5 @@ USER app
 # Expose port (Railway will set PORT env var)
 EXPOSE 8087
 
-# Start the server
-CMD python stock_market_server.py
+# Start the server using the startup script
+CMD ["./start.sh"]

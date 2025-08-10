@@ -24,11 +24,14 @@ from tools.info_tools import register_info_tools
 # --- Load environment variables ---
 load_dotenv()
 
-TOKEN = os.environ.get("AUTH_TOKEN")
-MY_NUMBER = os.environ.get("MY_NUMBER")
+TOKEN = os.environ.get("AUTH_TOKEN", "").strip().strip('"')
+MY_NUMBER = os.environ.get("MY_NUMBER", "").strip().strip('"')
 
-assert TOKEN is not None, "Please set AUTH_TOKEN in your .env file"
-assert MY_NUMBER is not None, "Please set MY_NUMBER in your .env file"
+print(f"Debug: TOKEN loaded: {'Yes' if TOKEN else 'No'}")
+print(f"Debug: MY_NUMBER loaded: {'Yes' if MY_NUMBER else 'No'}")
+
+assert TOKEN, "Please set AUTH_TOKEN in your environment variables"
+assert MY_NUMBER, "Please set MY_NUMBER in your environment variables"
 
 # --- MCP Server Setup ---
 mcp = FastMCP(
@@ -41,15 +44,6 @@ mcp = FastMCP(
 async def validate() -> str:
     return MY_NUMBER
 
-# --- Health check endpoint ---
-@mcp.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "Stock Market MCP Server"}
-
-@mcp.get("/")
-async def root():
-    return {"message": "Stock Market MCP Server", "status": "running"}
-
 # Register all tool modules
 register_stock_tools(mcp)
 register_market_analysis_tools(mcp)
@@ -60,12 +54,27 @@ register_info_tools(mcp)
 
 # --- Run MCP Server ---
 async def main():
-    # Railway sets PORT environment variable
-    port = int(os.environ.get("PORT", 8087))
-    host = "0.0.0.0"
-    
-    print(f"📈 Starting Stock Market MCP server on http://{host}:{port}")
-    await mcp.run_async("streamable-http", host=host, port=port, path="/")
+    try:
+        # Railway sets PORT environment variable
+        port = int(os.environ.get("PORT", 8087))
+        host = "0.0.0.0"
+        
+        print(f"📈 Starting Stock Market MCP server on http://{host}:{port}")
+        print(f"🔧 Using AUTH_TOKEN: {TOKEN[:10]}..." if TOKEN else "🔧 No AUTH_TOKEN")
+        print(f"📱 Validation number: {MY_NUMBER}" if MY_NUMBER else "📱 No MY_NUMBER")
+        
+        await mcp.run_async("streamable-http", host=host, port=port, path="/")
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n👋 Server stopped by user")
+    except Exception as e:
+        print(f"💥 Server crashed: {e}")
+        exit(1)

@@ -43,7 +43,7 @@ In your Railway project dashboard:
 
 - ✅ **Dockerfile-based deployment** for consistent builds
 - ✅ **Dynamic port binding** via `PORT` environment variable
-- ✅ **Health check endpoints** at `/` and `/health`
+- ✅ **MCP Protocol Support** for tool-based interactions
 - ✅ **Minimal Docker image** with only necessary dependencies
 - ✅ **Security**: Non-root user in container
 - ✅ **Resource optimized**: Slim Python base image
@@ -80,7 +80,7 @@ docker run -p 8087:8087 \
 ### Runtime Issues
 - Verify environment variables are set correctly
 - Check application logs in Railway dashboard
-- Test health endpoints: `/` and `/health`
+- Ensure AUTH_TOKEN and MY_NUMBER are properly formatted (remove quotes if present)
 
 ### Memory Issues
 - Railway's free tier has memory limits
@@ -90,9 +90,8 @@ docker run -p 8087:8087 \
 
 After deployment, your MCP server will be available at:
 
-- **Health Check**: `GET /health`
-- **Root**: `GET /`
-- **MCP Tools**: Available via the MCP protocol
+- **MCP Protocol**: Available via the MCP protocol on the deployed URL
+- **Tool Access**: Use MCP client to interact with stock market tools
 
 ## Cost Optimization
 
