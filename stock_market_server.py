@@ -41,6 +41,15 @@ mcp = FastMCP(
 async def validate() -> str:
     return MY_NUMBER
 
+# --- Health check endpoint ---
+@mcp.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "Stock Market MCP Server"}
+
+@mcp.get("/")
+async def root():
+    return {"message": "Stock Market MCP Server", "status": "running"}
+
 # Register all tool modules
 register_stock_tools(mcp)
 register_market_analysis_tools(mcp)
@@ -51,8 +60,12 @@ register_info_tools(mcp)
 
 # --- Run MCP Server ---
 async def main():
-    print("📈 Starting Stock Market MCP server on http://0.0.0.0:8087")
-    await mcp.run_async("streamable-http", host="0.0.0.0", port=8087, path="/")
+    # Railway sets PORT environment variable
+    port = int(os.environ.get("PORT", 8087))
+    host = "0.0.0.0"
+    
+    print(f"📈 Starting Stock Market MCP server on http://{host}:{port}")
+    await mcp.run_async("streamable-http", host=host, port=port, path="/")
 
 if __name__ == "__main__":
     asyncio.run(main())

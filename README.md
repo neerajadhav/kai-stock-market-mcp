@@ -183,3 +183,38 @@ pip install -e ".[dev]"
 - Type hints required
 - Pydantic models for data validation
 - Async/await for non-blocking operations
+
+## Docker & Deployment
+
+### Quick Start with Docker
+
+```bash
+# Build and run locally
+docker build -t stock-market-mcp .
+docker run -p 8087:8087 \
+  -e AUTH_TOKEN=your-token \
+  -e MY_NUMBER=91xxxxxxxxxx \
+  stock-market-mcp
+```
+
+### Railway Deployment
+
+This application is optimized for Railway hosting with:
+
+- ✅ Dockerfile-based deployment
+- ✅ Dynamic port binding
+- ✅ Health check endpoints
+- ✅ Minimal Docker image
+
+See [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) for detailed deployment instructions.
+
+### Local Development with Docker Compose
+
+```bash
+# Copy environment variables
+cp .env.example .env
+# Edit .env with your values
+
+# Start the service
+docker-compose up --build
+```
