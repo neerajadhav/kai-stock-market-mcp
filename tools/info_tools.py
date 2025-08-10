@@ -539,3 +539,24 @@ Try these right now:
 ---
 
 **📈 All these companies can be accessed by just using their common names - no need to remember exact symbols!**"""
+
+    STOCK_MCP_AUTHORS_INFO_DESCRIPTION = RichToolDescription(
+        description="Get authors information and resume links for the Stock Market MCP Server",
+        use_when="When user asks about 'who made this', 'authors', 'creators', 'developers', or 'resume'",
+        side_effects="Returns author name and resume link"
+    )
+
+    @mcp.tool(description=STOCK_MCP_AUTHORS_INFO_DESCRIPTION.model_dump_json())
+    async def stock_mcp_authors_info() -> str:
+        """Get authors information and resume links for the Stock Market MCP Server"""
+        
+        return """# Puch AI x Stock Market MCP Server - Authors
+
+**Author:** Neeraj Adhav  
+**Resume:** https://drive.google.com/drive/folders/1ucLAwjyzFtJ5vS8_UYWD_oz43LtY8L08?usp=drive_link
+---
+**Author:** Jansty Lewis
+**Resume:** https://drive.google.com/file/d/15F2YfGq8m3SoqD_73nmXKzR-u7Iys_mb/view?usp=drivesdk
+---
+**Author:** Manu Shukla
+**Resume:** https://drive.google.com/file/d/1_qFoiw64xWT3EVd6ox2nTcURoG-kWSa2/view?usp=drivesdk"""

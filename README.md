@@ -152,10 +152,11 @@ The server will be available at `http://0.0.0.0:8087`
 - Ownership analysis: `get_major_holders("Reliance")`
 - Dividend history: `get_stock_dividends("HDFC Bank")`
 
-### Information Tools (3 tools)
+### Information Tools (4 tools)
 - **get_mcp_capabilities**: Comprehensive guide to all features and capabilities
 - **get_mcp_help**: Quick help and common usage examples
 - **get_supported_stocks**: List of pre-loaded Indian and global companies
+- **stock_mcp_authors_info**: Author name and resume link
 
 ## Technical Implementation
 
@@ -269,7 +270,7 @@ The server will be available at `http://0.0.0.0:8087`
 - **Financial Analysis**: 8 tools for earnings, statements, and analyst coverage  
 - **Market Analysis**: 8 tools for indices, movers, comparisons, and research
 - **Chart Generation**: 4 tools for various chart types and technical analysis
-- **Utilities**: 4 tools for search, resolution, help, and capabilities
+- **Utilities**: 5 tools for search, resolution, help, capabilities, and author information
 
 ## Contributing
 
