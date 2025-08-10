@@ -17,6 +17,9 @@ from services.chart_service import ChartService
 from tools.stock_tools import register_stock_tools
 from tools.market_analysis_tools import register_market_analysis_tools
 from tools.chart_tools import register_chart_tools
+from tools.analysis_tools import register_analysis_tools
+from tools.screening_tools import register_screening_tools
+from tools.info_tools import register_info_tools
 
 # --- Load environment variables ---
 load_dotenv()
@@ -42,6 +45,9 @@ async def validate() -> str:
 register_stock_tools(mcp)
 register_market_analysis_tools(mcp)
 register_chart_tools(mcp)
+register_analysis_tools(mcp)
+register_screening_tools(mcp)
+register_info_tools(mcp)
 
 # --- Run MCP Server ---
 async def main():

@@ -159,3 +159,108 @@ class MarketDataService:
             'comparison_date': hist.index[-1].strftime('%Y-%m-%d') if not hist.empty else None,
             'total_stocks': len(comparison_data)
         }
+
+    @classmethod
+    async def screen_stocks(cls, screener_type: str) -> List[dict]:
+        """Screen stocks using yfinance functionality"""
+        try:
+            # For now, we'll implement basic screening using available data
+            # In a full implementation, you would use yfinance.screen() if available
+            
+            screened_stocks = []
+            
+            if screener_type in ['most_active', 'gainers', 'losers', 'trending']:
+                # Use our NIFTY 50 watchlist for screening
+                stocks_data = []
+                
+                for symbol in cls.NIFTY_50_STOCKS:
+                    try:
+                        ticker = yf.Ticker(symbol)
+                        hist = ticker.history(period="2d")
+                        info = ticker.info
+                        
+                        if hist.empty:
+                            continue
+                        
+                        current_price = hist['Close'].iloc[-1]
+                        previous_close = info.get('previousClose', hist['Close'].iloc[-2] if len(hist) > 1 else current_price)
+                        change = current_price - previous_close
+                        change_percent = (change / previous_close) * 100 if previous_close != 0 else 0
+                        volume = hist['Volume'].iloc[-1]
+                        
+                        stock_data = {
+                            'symbol': symbol,
+                            'shortName': info.get('shortName', symbol),
+                            'longName': info.get('longName', ''),
+                            'regularMarketPrice': float(current_price),
+                            'regularMarketChange': float(change),
+                            'regularMarketChangePercent': float(change_percent),
+                            'regularMarketVolume': int(volume) if volume else 0,
+                            'marketCap': info.get('marketCap'),
+                            'sector': info.get('sector', '')
+                        }
+                        
+                        stocks_data.append(stock_data)
+                        
+                    except Exception as e:
+                        continue
+                
+                # Apply screening logic
+                if screener_type == 'most_active':
+                    screened_stocks = sorted(stocks_data, key=lambda x: x['regularMarketVolume'], reverse=True)
+                elif screener_type == 'gainers':
+                    screened_stocks = sorted(stocks_data, key=lambda x: x['regularMarketChangePercent'], reverse=True)
+                elif screener_type == 'losers':
+                    screened_stocks = sorted(stocks_data, key=lambda x: x['regularMarketChangePercent'])
+                else:  # trending
+                    # For trending, we'll combine volume and price change
+                    for stock in stocks_data:
+                        trend_score = abs(stock['regularMarketChangePercent']) * (stock['regularMarketVolume'] / 1e6)
+                        stock['trend_score'] = trend_score
+                    screened_stocks = sorted(stocks_data, key=lambda x: x.get('trend_score', 0), reverse=True)
+            
+            elif screener_type in ['small_cap', 'mid_cap', 'large_cap']:
+                # Market cap based screening
+                stocks_data = []
+                
+                for symbol in cls.NIFTY_50_STOCKS:
+                    try:
+                        ticker = yf.Ticker(symbol)
+                        info = ticker.info
+                        hist = ticker.history(period="1d")
+                        
+                        if hist.empty:
+                            continue
+                        
+                        market_cap = info.get('marketCap', 0)
+                        
+                        # Cap classification (in USD)
+                        is_match = False
+                        if screener_type == 'small_cap' and market_cap < 2e9:  # < $2B
+                            is_match = True
+                        elif screener_type == 'mid_cap' and 2e9 <= market_cap <= 10e9:  # $2B - $10B
+                            is_match = True
+                        elif screener_type == 'large_cap' and market_cap > 10e9:  # > $10B
+                            is_match = True
+                        
+                        if is_match:
+                            stock_data = {
+                                'symbol': symbol,
+                                'shortName': info.get('shortName', symbol),
+                                'longName': info.get('longName', ''),
+                                'regularMarketPrice': float(hist['Close'].iloc[-1]),
+                                'marketCap': market_cap,
+                                'sector': info.get('sector', '')
+                            }
+                            stocks_data.append(stock_data)
+                            
+                    except Exception as e:
+                        continue
+                
+                # Sort by market cap
+                screened_stocks = sorted(stocks_data, key=lambda x: x.get('marketCap', 0), reverse=True)
+            
+            return screened_stocks
+            
+        except Exception as e:
+            raise ValueError(f"Error screening stocks: {str(e)}")

@@ -3,25 +3,35 @@ from pydantic import Field
 from mcp.types import ImageContent
 from models import RichToolDescription
 from services.chart_service import ChartService
+from services.symbol_resolver import SymbolResolver
+
+# Create a global symbol resolver instance
+symbol_resolver = SymbolResolver()
 
 def register_chart_tools(mcp):
     """Register all matplotlib chart generation tools"""
     
     CREATE_STOCK_CHART_DESCRIPTION = RichToolDescription(
-        description="Generate a matplotlib price chart for Indian/global stocks over specified duration. Optimized for NSE/BSE stocks",
-        use_when="When user wants to visualize Indian stock price movement, trends, or technical analysis",
-        side_effects="Creates and returns a PNG chart image using matplotlib and yfinance data. Best results with .NS/.BO suffix"
+        description="Generate a matplotlib price chart for Indian/global stocks over specified duration. Supports both exact symbols AND company names with intelligent auto-resolution. Optimized for NSE/BSE stocks",
+        use_when="When user wants to visualize Indian stock price movement, trends, or technical analysis using either exact symbols OR company names",
+        side_effects="Creates and returns a PNG chart image using matplotlib and yfinance data. Automatically resolves company names to correct symbols."
     )
 
     @mcp.tool(description=CREATE_STOCK_CHART_DESCRIPTION.model_dump_json())
     async def create_stock_chart(
-        symbol: Annotated[str, Field(description="Stock symbol to chart (e.g., RELIANCE.NS, TCS.BO for Indian stocks, or AAPL for global)")],
+        symbol: Annotated[str, Field(description="Stock symbol OR company name (e.g., 'RELIANCE.NS', 'Reliance', 'Apple' - will auto-resolve)")],
         period: Annotated[str, Field(description="Time period (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)")] = "1y"
     ) -> list[ImageContent]:
-        """Generate a price chart for Indian/global stocks using matplotlib"""
+        """Generate a price chart for Indian/global stocks using matplotlib with smart symbol resolution"""
         try:
+            # Smart symbol resolution
+            resolved_symbol, resolution_message = await symbol_resolver.smart_resolve(symbol, context="indian")
+            
+            if not resolved_symbol:
+                raise ValueError(f"Could not resolve symbol '{symbol}': {resolution_message}")
+            
             chart_service = ChartService()
-            chart_base64 = await chart_service.create_stock_chart(symbol, period)
+            chart_base64 = await chart_service.create_stock_chart(resolved_symbol, period)
             
             return [ImageContent(
                 type="image",
@@ -30,7 +40,7 @@ def register_chart_tools(mcp):
             )]
         except Exception as e:
             # Return error as text-based chart if image generation fails
-            error_message = f"❌ Error generating chart for {symbol.upper()}: {str(e)}"
+            error_message = f"❌ Error generating chart for {symbol}: {str(e)}"
             # For now, we'll raise the exception since we can't return text content from an ImageContent function
             raise ValueError(error_message)
 
